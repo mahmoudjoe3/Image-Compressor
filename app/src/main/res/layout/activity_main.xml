@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:background="#ffff87">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="16dp"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" Quality % "/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+            <EditText android:id="@+id/quality"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="50"
+                android:layout_weight="0.5"
+                android:layout_gravity="bottom"/>
+            <Button android:id="@+id/encode"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="#FF5722"
+                android:padding="5dp"
+                android:text="Encode Image"
+                android:textColor="#ffffff" />
+
+            <Button android:id="@+id/decode"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="#FF5722"
+                android:padding="5dp"
+                android:enabled="false"
+                android:text="Decode Image"
+                android:textColor="#ffffff" />
+        </LinearLayout>
+        <TextView android:id="@+id/code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:maxLines="5"
+            android:textSize="6sp"/>
+
+        <ImageView android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+
+</LinearLayout>
