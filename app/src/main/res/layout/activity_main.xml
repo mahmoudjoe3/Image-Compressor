@@ -35,18 +35,19 @@
                 android:layout_margin="5dp"
                 android:background="#FF5722"
                 android:padding="5dp"
-                android:text="Encode Image"
+                android:text="Get Image"
                 android:textColor="#ffffff" />
 
-            <Button android:id="@+id/decode"
+            <Button android:id="@+id/save"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:background="#FF5722"
                 android:padding="5dp"
-                android:enabled="false"
-                android:text="Decode Image"
+                android:visibility="gone"
+                android:drawableLeft="@drawable/ic_baseline_save_alt_24"
+                android:text="Save Image"
                 android:textColor="#ffffff" />
         </LinearLayout>
         <TextView android:id="@+id/code"

@@ -26,4 +26,10 @@ public class ImageCompressor {
         return bitmap;
     }
 
+    //                new Handler().postDelayed(new Runnable() {
+//                    public void run() {
+//                        // do something...
+//                    }
+//                }, 1000);
+
 }

@@ -4,13 +4,13 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -25,8 +25,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,11 +44,13 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.image)
     ImageView image;
     String code;
-    @BindView(R.id.decode)
-    Button decode;
+    @BindView(R.id.save)
+    Button save;
     @BindView(R.id.quality)
     EditText quality;
     int Quality=50;
+    OutputStream outputStream;
+    String path="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,41 +60,38 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+
+    @OnClick({R.id.encode, R.id.save})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.encode:
+                encodeImage();
+                break;
+            case R.id.save:
+                saveImage();
+                Toast.makeText(this, "Image Saved! At --> "+path, Toast.LENGTH_LONG).show();
+                break;
+        }
+    }
+
+
+
+    private void encodeImage() {
+        if (IsPermissionGranted()) {
+            selectImage();
+
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQCODE);
+        }
+    }
     private Boolean IsPermissionGranted() {
         return (
                 ContextCompat.checkSelfPermission(this
                         , Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         );
     }
-
-    @OnClick({R.id.encode, R.id.decode})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.encode:
-                encodeImageClick();
-                break;
-            case R.id.decode:
-                decodeImageClick();
-                break;
-        }
-    }
-
-    private void decodeImageClick() {
-        Bitmap bitmap = ImageCompressor.decode_String_To_Image(code);
-        image.setImageBitmap(bitmap);
-    }
-
-
-
-    private void encodeImageClick() {
-        if (IsPermissionGranted()) {
-            selectImage();
-            decode.setEnabled(true);
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQCODE);
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -99,19 +101,18 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
         }
     }
-
     private void selectImage() {
         codeTXT.setText("");
         image.setImageBitmap(null);
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         startActivityForResult(intent, REQCODE);
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQCODE && resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
+            save.setVisibility(View.VISIBLE);
             Quality=Integer.parseInt(quality.getText().toString());
 
             double startTime = System.nanoTime();
@@ -124,6 +125,9 @@ public class MainActivity extends AppCompatActivity {
             double stopTime_encode = System.nanoTime();
             Log.d(TAG, "onActivityResult: encode_Image_To_String time ==> " + ((stopTime_encode - startTime_encode) / 1000000000)+" Sec ");
 
+            bitmap = ImageCompressor.decode_String_To_Image(code);
+            image.setImageBitmap(bitmap);
+
 //            double startTimeCode = System.nanoTime();
 //            codeTXT.setText(code);
 //            double stopTimeCode = System.nanoTime();
@@ -135,9 +139,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
-
-
 
     private Bitmap uriToBitmap(Uri uri) {
         Bitmap bitmap = null;
@@ -158,4 +159,32 @@ public class MainActivity extends AppCompatActivity {
         return bitmap;
     }
 
+    private void saveImage() {
+        File dir = new File(Environment.getExternalStorageDirectory(),"SaveImage");
+        if (!dir.exists()){
+            dir.mkdir();
+        }
+        BitmapDrawable drawable = (BitmapDrawable) image.getDrawable();
+        Bitmap bitmap = drawable.getBitmap();
+
+        File file = new File(dir,System.currentTimeMillis()+".jpg");
+        path=file.getAbsolutePath();
+        try {
+            outputStream = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        bitmap.compress(Bitmap.CompressFormat.JPEG,100,outputStream);
+
+        try {
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
